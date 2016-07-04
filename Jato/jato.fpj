@@ -1,0 +1,21 @@
+<Project>
+	<Libs Value="-mwindows -static -lSOIL -lglut32 -lglu32 -lopengl32 -lwinmm -lgdi32"/>
+	<Flags Value="-DGLUT_STATIC"/>
+	<Target Value="jato.exe"/>
+	<CommandLine Value=""/>
+	<CompilerOptions Value="-Wall -s"/>
+	<DeleteObjectsBefore Value="Yes"/>
+	<DeleteObjectsAfter Value="Yes"/>
+	<DeleteMakefileAfter Value="Yes"/>
+	<DeleteResourcesAfter Value="Yes"/>
+	<EnableTheme Value="No"/>
+	<RequiresAdmin Value="No"/>
+	<CompilerType Value="C"/>
+	<AppType Value="GUI"/>
+	<Files>&#xD;
+		<File Name="jato.c"/>&#xD;
+		<File Name="image.h"/>&#xD;
+		<File Name="image.c"/>&#xD;
+		<File Name="NewFile.cpp"/>&#xD;
+	</Files>
+</Project>

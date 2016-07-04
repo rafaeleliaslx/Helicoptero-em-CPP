@@ -27,8 +27,9 @@ GLuint  helicopter_texture;
 
 GLshort textures=1;
 GLfloat axisxz=0;
-GLfloat radiusxz=6;
+GLfloat radiusxz=15;
 GLuint  helicopter;
+GLfloat girar = 0.0;
 
 int screwPropellerAngle = 0;
 int turn = 0;
@@ -97,8 +98,11 @@ void composes_helicopter(void){
 	glNewList(helicopter, GL_COMPILE);
 
 	glPushMatrix();
+	
 	glTranslatef(0,verticalMovement,horizontalMovement);
-
+	glRotatef(-girar, 0.0 , 1.0, 0.0);
+	
+	glScalef(0.5,0.5,0.5);
     /* draws helicopter's beak */
 	quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
@@ -542,6 +546,21 @@ void keyboard(unsigned char key, int x, int y){
 			axisxz=axisxz-2;
 			glutPostRedisplay();
 			break;
+		
+		// rotate helicopter 
+		case 'g': //girar helicopero
+		if(turn == 1) {
+			girar = girar + 5.5;
+		}
+
+		glutPostRedisplay();
+		break;
+	case 'G': // girar helicoptero
+		if(turn == 1) {
+			girar = girar - 5.5;
+		}
+		glutPostRedisplay();
+		break;
 
 		/* zoom control */
 		case 'r':

@@ -1,7 +1,8 @@
 <Layout>
 	<Files>&#xD;
-		<File Name="helicoptero.c" Top="Yes" Tabpos="1" TopLine="688">&#xD;
-			<Cursor Line="1207" Column="1"/>&#xD;
+		<File Name="helicoptero.c" Top="No" Tabpos="1" TopLine="1070">&#xD;
+			<Cursor Line="1090" Column="9"/>&#xD;
+			<Selection Line="1078" Column="2"/>&#xD;
 		</File>&#xD;
 	</Files>
 </Layout>

@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <Layout>
-	<Files>
-		<File Name="main.c" Top="Yes" Tabpos="1" TopLine="574">
-			<Cursor Line="230" Column="20"/>
-			<Selection Line="226" Column="28"/>
-		</File>
+	<Files>&#xD;
+		<File Name="main.c" Top="Yes" Tabpos="2" TopLine="547">&#xD;
+			<Cursor Line="552" Column="10"/>&#xD;
+		</File>&#xD;
 	</Files>
 </Layout>

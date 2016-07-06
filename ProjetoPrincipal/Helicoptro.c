@@ -3,11 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
+
 #include "image.h"
 #include "image.c"
+
 #define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
@@ -72,9 +75,7 @@ void reshape(int width, int height) {
 void composes_helicopter(void) {
 	GLUquadricObj * quadric;
 
-	GLfloat helice[][4] =
-
-	{
+	GLfloat helice[][4] = {
 		{0.0, 0.0, 0.0},
 		{5.5, 0.0, 0.0},
 		{5.5, 0.0, 0.5},
@@ -510,7 +511,7 @@ void special(int key, int x, int y) {
 		break;
 	}
 }
-void mouse(int button, int state, int x, int y) {
+void mouseAction(int button, int state, int x, int y) {
 	// Wheel reports as button 3(scroll up) and button 4(scroll down)
 	if (button == 3) {
 		radiusxz = radiusxz - 1;
@@ -520,6 +521,19 @@ void mouse(int button, int state, int x, int y) {
 		glutPostRedisplay();
 	}
 	if(button == 4) {
+		radiusxz = radiusxz + 1;
+		glutPostRedisplay();
+	}
+}
+void mouseWeel (int button, int dir, int x, int y) {
+	if (dir > 0) { //scroll up
+		radiusxz = radiusxz - 1;
+		if(radiusxz == 0) {
+			radiusxz = 1;
+		}
+		glutPostRedisplay();
+	}
+	if(dir < 0) { //scroll down
 		radiusxz = radiusxz + 1;
 		glutPostRedisplay();
 	}
@@ -536,7 +550,17 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'I': //turn off screw-propellers
 		if(verticalMovement <= -0.55) {
 			turn = 0;
-		}
+		}/* else {
+			while(verticalMovement > -0.55) {
+				verticalMovement = verticalMovement - 0.5;
+				if(verticalMovement < -0.55) {
+					verticalMovement = -0.55;
+				}
+				glutPostRedisplay();
+				sleep(2);
+			}
+			turn = 0;
+		}*/
 		glutPostRedisplay();
 		break;
 	case 'm': //shoot
@@ -743,7 +767,8 @@ int main(int argc, char * * argv) {
 	init();
 
 	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouse);
+	glutMotionFunc(mouseAction);
+	// glutMouseWheelFunc(mouseWeel); //Add the lib #include <GL/freeglut.h>
 	glutSpecialFunc(special);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);

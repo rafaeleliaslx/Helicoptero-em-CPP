@@ -485,12 +485,12 @@ void special(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_UP:
 		if(turn == 1) {
-			verticalMovement = verticalMovement + 0.05;
+			verticalMovement = verticalMovement + 0.5;
 		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
-		verticalMovement = verticalMovement - 0.05;
+		verticalMovement = verticalMovement - 0.5;
 		if(verticalMovement < -0.55) {
 			verticalMovement = -0.55;
 		}
@@ -498,13 +498,13 @@ void special(int key, int x, int y) {
 		break;
 	case GLUT_KEY_LEFT:
 		if (turn == 1) {
-			horizontalMovement = horizontalMovement + 0.05;
+			horizontalMovement = horizontalMovement + 0.5;
 		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
 		if (turn == 1) {
-			horizontalMovement = horizontalMovement - 0.05;
+			horizontalMovement = horizontalMovement - 0.5;
 		}
 		glutPostRedisplay();
 		break;
@@ -691,7 +691,7 @@ void animation() {
 	}
 
 	if (shoot == 1) {
-		machineGunBulletMovement = machineGunBulletMovement + 0.2;
+		machineGunBulletMovement = machineGunBulletMovement + 0.5;
 		if (machineGunBulletMovement > 15.0) {
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
@@ -700,7 +700,7 @@ void animation() {
 	}
 
 	if (leftTorpedo == 1) {
-		leftTorpedoMovement = leftTorpedoMovement + 0.05;
+		leftTorpedoMovement = leftTorpedoMovement + 0.5;
 		if(leftTorpedoMovement > 15.0) {
 			leftTorpedo = 1;
 		}
@@ -708,7 +708,7 @@ void animation() {
 	}
 
 	if (rightTorpedo == 1) {
-		rightTorpedoMovement = rightTorpedoMovement + 0.05;
+		rightTorpedoMovement = rightTorpedoMovement + 0.5;
 		if(rightTorpedoMovement > 15.0) {
 			rightTorpedo = 1;
 		}

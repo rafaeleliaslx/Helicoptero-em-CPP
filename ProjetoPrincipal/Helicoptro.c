@@ -8,7 +8,6 @@
 #include <GL/glu.h>
 #include "image.h"
 #include "image.c"
-
 #define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
@@ -511,7 +510,20 @@ void special(int key, int x, int y) {
 		break;
 	}
 }
-
+void mouse(int button, int state, int x, int y) {
+	// Wheel reports as button 3(scroll up) and button 4(scroll down)
+	if (button == 3) {
+		radiusxz = radiusxz - 1;
+		if(radiusxz == 0) {
+			radiusxz = 1;
+		}
+		glutPostRedisplay();
+	}
+	if(button == 4) {
+		radiusxz = radiusxz + 1;
+		glutPostRedisplay();
+	}
+}
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 27:  //exit
@@ -579,14 +591,14 @@ void keyboard(unsigned char key, int x, int y) {
 		*/
 		/* zoom control */
 	case 'r':
-		radiusxz = radiusxz + 1;
-		glutPostRedisplay();
-		break;
-	case 'R':
 		radiusxz = radiusxz - 1;
 		if(radiusxz == 0) {
 			radiusxz = 1;
 		}
+		glutPostRedisplay();
+		break;
+	case 'R':
+		radiusxz = radiusxz + 1;
 		glutPostRedisplay();
 		break;
 		/*
@@ -731,6 +743,7 @@ int main(int argc, char * * argv) {
 	init();
 
 	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouse);
 	glutSpecialFunc(special);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);

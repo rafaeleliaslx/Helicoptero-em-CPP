@@ -65,8 +65,9 @@ void reshape(int width, int height) {
 	glViewport(0, 0, (GLint)width, (GLint)height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(70.0, width / (float)height, 0.1, 30.0);
+	gluPerspective(70.0, width / (float)height, 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void composes_helicopter(void) {
@@ -97,7 +98,7 @@ void composes_helicopter(void) {
 	glTranslatef(0, verticalMovement, horizontalMovement);
 	glRotatef(-girar, 0.0 , 1.0, 0.0);
 
-	glScalef(0.5, 0.5, 0.5);
+	glScalef(1.0, 1.0, 1.0);
 	/* draws helicopter's beak */
 	quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
@@ -588,18 +589,18 @@ void keyboard(unsigned char key, int x, int y) {
 		}
 		glutPostRedisplay();
 		break;
-/*
-	//Enable textures
-	case 'e':
-		enableTexture = 1;
-		glutPostRedisplay();
-		break;
-	//Disable textures
-	case 'E':
-		enableTexture = 0;
-		glutPostRedisplay();
-		break;
-*/
+		/*
+			//Enable textures
+			case 'e':
+				enableTexture = 1;
+				glutPostRedisplay();
+				break;
+			//Disable textures
+			case 'E':
+				enableTexture = 0;
+				glutPostRedisplay();
+				break;
+		*/
 	}
 }
 

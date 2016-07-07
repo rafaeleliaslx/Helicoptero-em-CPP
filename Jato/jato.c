@@ -31,16 +31,14 @@ GLfloat tetaxz = 0;
 GLfloat raioxz = 6;
 GLuint  jato;
 
-GLfloat ctp[4][2] =
-{
+GLfloat ctp[4][2] = {
 	{ -COORD_TEXTURA_PLANO, -COORD_TEXTURA_PLANO},
 	{ +COORD_TEXTURA_PLANO, -COORD_TEXTURA_PLANO},
 	{ +COORD_TEXTURA_PLANO, +COORD_TEXTURA_PLANO},
 	{ -COORD_TEXTURA_PLANO, +COORD_TEXTURA_PLANO}
 };
 
-GLfloat cta[4][2] =
-{
+GLfloat cta[4][2] = {
 	{ -COORD_TEXTURA_AVIAO, -COORD_TEXTURA_AVIAO},
 	{ +COORD_TEXTURA_AVIAO, -COORD_TEXTURA_AVIAO},
 	{ +COORD_TEXTURA_AVIAO, +COORD_TEXTURA_AVIAO},
@@ -48,8 +46,7 @@ GLfloat cta[4][2] =
 };
 
 
-void reshape(int width, int height)
-{
+void reshape(int width, int height) {
 	WIDTH = width;
 	HEIGHT = height;
 	glViewport(0, 0, (GLint)width, (GLint)height);
@@ -60,19 +57,16 @@ void reshape(int width, int height)
 	glLoadIdentity();
 }
 
-void compoe_jato(void)
-{
-	GLUquadricObj *quadric;
+void compoe_jato(void) {
+	GLUquadricObj * quadric;
 
-	GLfloat asa[][3] =
-	{
+	GLfloat asa[][3] = {
 		{ -4.0, 0.0, 0.0},
 		{ +4.0, 0.0, 0.0},
 		{0.0, 0.0, 3.0}
 	};
 
-	GLfloat cauda[][3] =
-	{
+	GLfloat cauda[][3] = {
 		{0.0, 0.0, 0.0},
 		{0.0, 2.0, -1.0},
 		{0.0, 2.0, 0.0},
@@ -131,8 +125,7 @@ void compoe_jato(void)
 	glEndList();
 }
 
-void display(void)
-{
+void display(void) {
 	glEnable(GL_DEPTH_TEST);
 
 	glDepthMask(GL_TRUE);
@@ -147,12 +140,9 @@ void display(void)
 	gluLookAt(obs[0], obs[1], obs[2], look[0], look[1], look[2], 0.0, 1.0, 0.0);
 
 	/* habilita/desabilita uso de texturas*/
-	if(texturas)
-	{
+	if(texturas) {
 		glEnable(GL_TEXTURE_2D);
-	}
-	else
-	{
+	} else {
 		glDisable(GL_TEXTURE_2D);
 	}
 
@@ -183,10 +173,8 @@ void display(void)
 }
 
 
-void special(int key, int x, int y)
-{
-	switch (key)
-	{
+void special(int key, int x, int y) {
+	switch (key) {
 	case GLUT_KEY_UP:
 		obs[1] = obs[1] + 1;
 		glutPostRedisplay();
@@ -206,10 +194,8 @@ void special(int key, int x, int y)
 	}
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
+void keyboard(unsigned char key, int x, int y) {
+	switch (key) {
 	case 27:
 		exit(0);
 		break;
@@ -223,8 +209,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'R':
 		raioxz = raioxz - 1;
-		if(raioxz == 0)
-		{
+		if(raioxz == 0) {
 			raioxz = 1;
 		}
 		glutPostRedisplay();
@@ -232,27 +217,23 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
-int carregar_texturas_SOIL(const char * filename, int mipmap)
-{
+int carregar_texturas_SOIL(const char * filename, int mipmap) {
 	unsigned char * data;
 	int width, height, channels;
 	GLenum format;
 	GLuint tex_id;
-	
-	data = SOIL_load_image(filename, &width, &height, &channels, SOIL_LOAD_AUTO);
-	if(data == NULL)
-	{
+
+	data = SOIL_load_image(filename, & width, & height, & channels, SOIL_LOAD_AUTO);
+	if(data == NULL) {
 		fprintf(stderr, "%s\n", SOIL_last_result());
 		exit(-2);
 	}
 	// invert Y
 	int i, j;
-	for( j = 0; j * 2 < height; ++j )
-	{
+	for( j = 0; j * 2 < height; ++j ) {
 		int index1 = j * width * channels;
 		int index2 = (height - 1 - j) * width * channels;
-		for( i = width * channels; i > 0; --i )
-		{
+		for( i = width * channels; i > 0; --i ) {
 			unsigned char temp = data[index1];
 			data[index1] = data[index2];
 			data[index2] = temp;
@@ -261,8 +242,7 @@ int carregar_texturas_SOIL(const char * filename, int mipmap)
 		}
 	}
 	// select correct format
-	switch( channels )
-	{
+	switch( channels ) {
 	case 1:
 		format = GL_LUMINANCE;
 		break;
@@ -275,37 +255,32 @@ int carregar_texturas_SOIL(const char * filename, int mipmap)
 	default:
 		format = GL_RGBA;
 	}
-	glGenTextures(1, &tex_id);
+	glGenTextures(1, & tex_id);
 
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if(mipmap)
-	{
+	if(mipmap) {
 		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, format,
-						  GL_UNSIGNED_BYTE, (GLvoid*)data);
+						  GL_UNSIGNED_BYTE, (GLvoid * )data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	}
-	else
-	{
+	} else {
 		glTexImage2D(GL_TEXTURE_2D, 0, channels, width, height, 0, format,
-					 GL_UNSIGNED_BYTE, (GLvoid*)data);
+					 GL_UNSIGNED_BYTE, (GLvoid * )data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 	SOIL_free_image_data(data);
 	return tex_id;
 }
 
-void carregar_texturas(void)
-{
-	IMAGE *img;
+void carregar_texturas(void) {
+	IMAGE * img;
 	GLenum gluerr;
 
 	/* textura do plano */
-	glGenTextures(1, &textura_plano);
+	glGenTextures(1, & textura_plano);
 	glBindTexture(GL_TEXTURE_2D, textura_plano);
 
-	if(!(img = ImageLoad(TEXTURA_DO_PLANO)))
-	{
+	if(!(img = ImageLoad(TEXTURA_DO_PLANO))) {
 		fprintf(stderr, "Error reading a texture.\n");
 		exit(-1);
 	}
@@ -313,9 +288,8 @@ void carregar_texturas(void)
 	gluerr = gluBuild2DMipmaps(GL_TEXTURE_2D, 3,
 							   img->sizeX, img->sizeY,
 							   GL_RGB, GL_UNSIGNED_BYTE,
-							   (GLvoid *)(img->data));
-	if(gluerr)
-	{
+							   (GLvoid * )(img->data));
+	if(gluerr) {
 		fprintf(stderr, "GLULib%s\n", gluErrorString(gluerr));
 		exit(-1);
 	}
@@ -327,12 +301,11 @@ void carregar_texturas(void)
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	/* textura do aviao */
-	glGenTextures(1, &textura_aviao);
+	glGenTextures(1, & textura_aviao);
 	glBindTexture(GL_TEXTURE_2D, textura_aviao);
 
 
-	if(!(img = ImageLoad(TEXTURA_DO_AVIAO)))
-	{
+	if(!(img = ImageLoad(TEXTURA_DO_AVIAO))) {
 		fprintf(stderr, "Error reading a texture.\n");
 		exit(-1);
 	}
@@ -340,9 +313,8 @@ void carregar_texturas(void)
 	gluerr = gluBuild2DMipmaps(GL_TEXTURE_2D, 3,
 							   img->sizeX, img->sizeY,
 							   GL_RGB, GL_UNSIGNED_BYTE,
-							   (GLvoid *)(img->data));
-	if(gluerr)
-	{
+							   (GLvoid * )(img->data));
+	if(gluerr) {
 		fprintf(stderr, "GLULib%s\n", gluErrorString(gluerr));
 		exit(-1);
 	}
@@ -355,8 +327,7 @@ void carregar_texturas(void)
 
 }
 
-void init()
-{
+void init() {
 	//carregar_texturas();
 	textura_plano = carregar_texturas_SOIL(TEXTURA_DO_PLANO_PNG, 0);
 	textura_aviao = carregar_texturas_SOIL(TEXTURA_DO_AVIAO_PNG, 0);
@@ -368,15 +339,13 @@ void init()
 	glEnable(GL_TEXTURE_2D);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char * * argv) {
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(WIDTH, HEIGHT);
-	glutInit(&argc, argv);
+	glutInit( & argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-	if(!glutCreateWindow("Avião a jato"))
-	{
+	if(!glutCreateWindow("Avião a jato")) {
 		fprintf(stderr, "Error opening a window.\n");
 		exit(-1);
 	}

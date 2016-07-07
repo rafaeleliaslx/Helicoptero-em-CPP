@@ -28,13 +28,14 @@ GLfloat look[3] = {0.0, 3.0, 0.0};
 GLuint  plan_texture;
 GLuint  helicopter_texture;
 
-GLshort textures = 1;
+GLshort enableTexture = 1;
 GLfloat axisxz = 0;
 GLfloat radiusxz = 15;
 GLuint  helicopter;
 GLfloat girar = 0.0;
 
 int screwPropellerAngle = 0;
+int stop = 0;
 int turn = 0;
 int x2, y2, z2;
 int shoot = 0;
@@ -45,7 +46,6 @@ float horizontalMovement = 0;
 float machineGunBulletMovement = 2.0;
 float leftTorpedoMovement = 0;
 float rightTorpedoMovement = 0;
-int enableTexture = 1;
 
 GLfloat ctp[4][2] = {
 	{ -PLAN_TEXTURE_COORD, -PLAN_TEXTURE_COORD},
@@ -221,23 +221,22 @@ void composes_helicopter(void) {
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0, 0.0, 0.0);
 	glTranslatef(0.3, -0.5, machineGunBulletMovement);
-	gluSphere(quadric, 0.05, 24, 24);
+	gluSphere(quadric, 0.1, 24, 24);
 	glPopMatrix();
 
-	if(enableTexture)
-		glEnable(GL_TEXTURE_2D);
 	quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 	glPushMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0, 0.0, 0.0);
 	glTranslatef(-0.3, -0.5, machineGunBulletMovement);
-	gluSphere(quadric, 0.05, 24, 24);
+	gluSphere(quadric, 0.1, 24, 24);
 	glPopMatrix();
 
+
+	/* draws helicopter's torpedo */
 	if(enableTexture)
 		glEnable(GL_TEXTURE_2D);
-	/* draws helicopter's torpedo */
 	glPushMatrix();
 	glTranslatef(0, 0, rightTorpedoMovement);
 	quadric = gluNewQuadric();
@@ -287,7 +286,7 @@ void composes_helicopter(void) {
 	glPushMatrix();
 	if(enableTexture)
 		glEnable(GL_TEXTURE_2D);
-	glTranslatef(0.3, -1.4, 1.2);
+	glTranslatef(0.3, -1.3, 1.2);
 	gluCylinder(quadric, 0.1, 0.1, 2.8, 12, 3);
 	glPopMatrix();
 
@@ -310,7 +309,7 @@ void composes_helicopter(void) {
 	quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 	glPushMatrix();
-	glTranslatef(-0.4, -1.4, 1.2);
+	glTranslatef(-0.4, -1.3, 1.2);
 	gluCylinder(quadric, 0.1, 0.1, 2.8, 12, 3);
 	glPopMatrix();
 
@@ -440,7 +439,7 @@ void display(void) {
 	composes_helicopter();
 
 	glDepthMask(GL_TRUE);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(0.0, 0.3, 0.8, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
@@ -451,9 +450,8 @@ void display(void) {
 	gluLookAt(obs[0], obs[1], obs[2], look[0], look[1], look[2], 0.0, 1.0, 0.0);
 
 	/* enable/disable use of textures */
-	if(textures) {
-		if(enableTexture)
-			glEnable(GL_TEXTURE_2D);
+	if(enableTexture) {
+		glEnable(GL_TEXTURE_2D);
 	} else {
 		glDisable(GL_TEXTURE_2D);
 	}
@@ -492,9 +490,11 @@ void special(int key, int x, int y) {
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
-		verticalMovement = verticalMovement - 0.5;
-		if(verticalMovement < -0.55) {
-			verticalMovement = -0.55;
+		if(turn == 1) {
+			verticalMovement = verticalMovement - 0.5;
+			if(verticalMovement < -0.55) {
+				verticalMovement = -0.55;
+			}
 		}
 		glutPostRedisplay();
 		break;
@@ -544,32 +544,21 @@ void keyboard(unsigned char key, int x, int y) {
 	case 27:  //exit
 		exit(0);
 		break;
+
 	case 'i': //turn on screw-propellers
 		turn = 1;
 		glutPostRedisplay();
 		break;
 	case 'I': //turn off screw-propellers
-		//turn = 0;
-		if(verticalMovement <= -0.55) {
-			turn = 0;
-		} else {
-			while(verticalMovement > -0.55) {
-				verticalMovement = verticalMovement - 0.05;
-				if(verticalMovement < -0.55) {
-					verticalMovement = -0.55;
-				}
-				Sleep(2);
-				glutPostRedisplay();
-			}
-			turn = 0;
-		}
-		glutPostRedisplay();
+		stop = 1;
 		break;
+
 	case 'm': //shoot
 	case 'M':
 		shoot = 1;
 		glutPostRedisplay();
 		break;
+
 	case 't': //launch left torpedo
 		leftTorpedo = 1;
 		glutPostRedisplay();
@@ -578,6 +567,7 @@ void keyboard(unsigned char key, int x, int y) {
 		rightTorpedo = 1;
 		glutPostRedisplay();
 		break;
+
 		/* moves the visualization */
 	case 'w':
 	case 'W':
@@ -599,9 +589,7 @@ void keyboard(unsigned char key, int x, int y) {
 		axisxz = axisxz - 2;
 		glutPostRedisplay();
 		break;
-		/*
 
-		*/
 		/* zoom control */
 	case 'r':
 		radiusxz = radiusxz - 1;
@@ -624,22 +612,22 @@ void keyboard(unsigned char key, int x, int y) {
 			case 'E':
 				enableTexture = 0;
 				glutPostRedisplay();
-				break;
-				// rotate helicopter
-			case 'g':
-				if(turn == 1) {
-					girar = girar + 5.5;
-				}
+				break;  */
+		// rotate helicopter
+	case 'g':
+		if(turn == 1) {
+			girar = girar + 5.5;
+		}
 
-				glutPostRedisplay();
-				break;
-			case 'G':
-				if(turn == 1) {
-					girar = girar - 5.5;
-				}
-				glutPostRedisplay();
-				break;
-		*/
+		glutPostRedisplay();
+		break;
+	case 'G':
+		if(turn == 1) {
+			girar = girar - 5.5;
+		}
+		glutPostRedisplay();
+		break;
+
 	}
 }
 
@@ -725,13 +713,13 @@ void init() {
 
 /* function which controls the screw-propeller, machine-gun and torpedo moves */
 void animation() {
-	if (turn == 1) {
+	if (turn) {
 		screwPropellerAngle = (screwPropellerAngle + 15) % 360;
 		glutPostRedisplay();
 	}
 
-	if (shoot == 1) {
-		machineGunBulletMovement = machineGunBulletMovement + 0.5;
+	if (shoot) {
+		machineGunBulletMovement = machineGunBulletMovement + 0.3;
 		if (machineGunBulletMovement > 15.0) {
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
@@ -739,18 +727,28 @@ void animation() {
 		glutPostRedisplay();
 	}
 
-	if (leftTorpedo == 1) {
-		leftTorpedoMovement = leftTorpedoMovement + 0.5;
+	if (leftTorpedo) {
+		leftTorpedoMovement = leftTorpedoMovement + 0.3;
 		if(leftTorpedoMovement > 15.0) {
+			leftTorpedoMovement = 2.0;
 			leftTorpedo = 1;
 		}
 		glutPostRedisplay();
 	}
 
-	if (rightTorpedo == 1) {
+	if (rightTorpedo) {
 		rightTorpedoMovement = rightTorpedoMovement + 0.5;
 		if(rightTorpedoMovement > 15.0) {
 			rightTorpedo = 1;
+		}
+		glutPostRedisplay();
+	}
+	if(stop) {
+		verticalMovement = verticalMovement - 0.2;
+		if (verticalMovement < -0.5) {
+			verticalMovement = -0.52;
+			stop = 0;
+			turn = 0;
 		}
 		glutPostRedisplay();
 	}

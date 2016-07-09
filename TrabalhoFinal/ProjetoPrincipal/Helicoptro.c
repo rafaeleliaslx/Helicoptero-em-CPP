@@ -1,3 +1,4 @@
+
 /* HELICOPTERO*/
 
 #include <stdio.h>
@@ -19,6 +20,12 @@
 #define HELICOPTER_COLOR 0.5,0.52,0.18,1.0
 #define PLAN_TEXTURE "mountains.rgb"
 #define HELICOPTER_TEXTURE "war.rgb"
+#define NUM_PARTIC    1000          /* NUMBER OF PARTTICLES  */
+#define NUM_PEDAC       1000            /* NUMBER OF PIECES     */
+#define OBJECT_X 10
+#define OBJECT_Y 5
+#define OBJECT_Z 10
+
 
 GLint WIDTH = 1000;
 GLint HEIGHT = 600;
@@ -60,6 +67,52 @@ GLfloat cta[4][2] = {
 	{ +PLAN_TEXTURE_HELICOPTER, +PLAN_TEXTURE_HELICOPTER},
 	{ -PLAN_TEXTURE_HELICOPTER, +PLAN_TEXTURE_HELICOPTER}
 };
+
+// EXPLOSION
+
+/* PARTICLES */
+
+struct particleData {
+	float   position[3];
+	float   speed[3];
+	float   color[3];
+};
+typedef struct particleData    particleData;
+
+/* PIECES */
+
+struct debrisData {
+	float   position[3];
+	float   speed[3];
+	float   orientation[3];        /* ROTATION ANGLES x, y, z */
+	float   orientationSpeed[3];
+	float   color[3];
+	float   scale[3];
+};
+typedef struct debrisData    debrisData;
+particleData     particles[NUM_PARTIC];
+debrisData       debris[NUM_PEDAC];
+int              fuel = 0;
+GLfloat  light0Amb[4] =  { 1.0, 0.6, 0.2, 1.0 };
+GLfloat  light0Dif[4] =  { 1.0, 0.6, 0.2, 1.0 };
+GLfloat  light0Spec[4] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat  light0Pos[4] =  { 0.0, 0.0, 0.0, 1.0 };
+
+GLfloat  light1Amb[4] =  { 0.0, 0.0, 0.0, 1.0 };
+GLfloat  light1Dif[4] =  { 1.0, 1.0, 1.0, 1.0 };
+GLfloat  light1Spec[4] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat  light1Pos[4] =  { 0.0, 5.0, 5.0, 0.0 };
+
+GLfloat  materialAmb[4] = { 0.25, 0.22, 0.26, 1.0 };
+GLfloat  materialDif[4] = { 0.63, 0.57, 0.60, 1.0 };
+GLfloat  materialSpec[4] = { 0.99, 0.91, 0.81, 1.0 };
+GLfloat  materialShininess = 27.8;
+GLfloat  discharge[3] = {0.0, 0.0, 0.0};
+
+int      wantNormalize = 0;
+int      wantPause = 0;
+
+// END OF DECLARATION FOR EXPLOSION
 
 
 void reshape(int width, int height) {
@@ -433,6 +486,75 @@ void composes_helicopter(void) {
 	glEndList();
 }
 
+// EXPLISION FUNCTIONS
+
+void newSpeed (float dest[3]) {
+	float    x;
+	float    y;
+	float    z;
+	float    len;
+
+	x = (2.0 * ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+	y = (2.0 * ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+	z = (2.0 * ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+
+
+	if (wantNormalize) {
+		len = sqrt (x * x + y * y + z * z);
+		if (len) {
+			x = x / len;
+			y = y / len;
+			z = z / len;
+		}
+	}
+
+	dest[0] = x;
+	dest[1] = y;
+	dest[2] = z;
+}
+
+
+void newExplosion (void) {
+	int    i;
+	for (i = 0; i < NUM_PARTIC; i++) {
+		particles[i].position[0] = OBJECT_X;
+		particles[i].position[1] = OBJECT_Y;
+		particles[i].position[2] = OBJECT_Z;
+
+		particles[i].color[0] = 1.0;
+		particles[i].color[1] = 1.0;
+		particles[i].color[2] = 0.5;
+
+		newSpeed (particles[i].speed);
+	}
+
+	for (i = 0; i < NUM_PEDAC; i++) {
+		debris[i].position[0] = OBJECT_X;
+		debris[i].position[1] = OBJECT_Y;
+		debris[i].position[2] = OBJECT_Z;
+
+		debris[i].orientation[0] = 0.0;
+		debris[i].orientation[1] = 0.0;
+		debris[i].orientation[2] = 0.0;
+
+		debris[i].color[0] = 0.7;
+		debris[i].color[1] = 0.7;
+		debris[i].color[2] = 0.7;
+
+		debris[i].scale[0] = (2.0 *
+							  ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+		debris[i].scale[1] = (2.0 *
+							  ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+		debris[i].scale[2] = (2.0 *
+							  ((GLfloat) rand ()) / ((GLfloat) RAND_MAX)) - 1.0;
+
+		newSpeed (debris[i].speed);
+		newSpeed (debris[i].orientationSpeed);
+	}
+
+	fuel = 300;
+}
+
 void display(void) {
 	glEnable(GL_DEPTH_TEST);
 	glDeleteLists(helicopter, 1);
@@ -448,6 +570,74 @@ void display(void) {
 	obs[0] = radiusxz * cos(2 * PI * axisxz / 360);
 	obs[2] = radiusxz * sin(2 * PI * axisxz / 360);
 	gluLookAt(obs[0], obs[1], obs[2], look[0], look[1], look[2], 0.0, 1.0, 0.0);
+
+	if(fuel == 0) {
+		glEnable (GL_LIGHTING);
+		glDisable (GL_LIGHT0);
+		glEnable (GL_DEPTH_TEST);
+
+		glPushMatrix();
+		glTranslatef ( OBJECT_X +(discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
+		glRotatef(45, 0, 45, 0);
+		glColor3f(0.0, 0.4, 0.0);
+		glScalef (3, 3, 3);
+		glColor3f(0.647059, 0.264706, 0.094706);
+		glutSolidOctahedron(); //(2.2, 2, 100, 10);
+		glPopMatrix();
+	}
+
+	if (fuel > 0) {
+		glPushMatrix ();
+
+		glDisable (GL_LIGHTING);
+		glDisable (GL_DEPTH_TEST);
+
+		glBegin (GL_POINTS);
+		int i = 0;
+		while (i < NUM_PARTIC) {
+			glColor3fv (particles[i].color);
+			glVertex3fv (particles[i].position);
+			i++;
+		}
+
+		glEnd ();
+
+		glPopMatrix ();
+
+		glEnable (GL_LIGHTING);
+		glEnable (GL_LIGHT0);
+		glEnable (GL_DEPTH_TEST);
+
+		glNormal3f (0.0, 0.0, 1.0);
+
+		for (i = 0; i < NUM_PEDAC; i++) {
+			glColor3fv (debris[i].color);
+
+			glPushMatrix ();
+
+			glTranslatef (debris[i].position[0],
+						  debris[i].position[1],
+						  debris[i].position[2]);
+
+			glRotatef (debris[i].orientation[0], 1.0, 0.0, 0.0);
+			glRotatef (debris[i].orientation[1], 0.0, 1.0, 0.0);
+			glRotatef (debris[i].orientation[2], 0.0, 0.0, 1.0);
+
+			glScalef (debris[i].scale[0],
+					  debris[i].scale[1],
+					  debris[i].scale[2]);
+
+			glBegin (GL_TRIANGLES);
+			glVertex3f (0.0, 0.5, 0.0);
+			glVertex3f (-0.25, 0.0, 0.0);
+			glVertex3f (0.25, 0.0, 0.0);
+			glEnd ();
+
+			glPopMatrix ();
+		}
+	}
+
+
 
 	/* enable/disable use of textures */
 	if(enableTexture) {
@@ -602,23 +792,24 @@ void keyboard(unsigned char key, int x, int y) {
 		radiusxz = radiusxz + 1;
 		glutPostRedisplay();
 		break;
-		/*
-				//Enable textures
-			case 'e':
-				enableTexture = 1;
-				glutPostRedisplay();
-				break;
-				//Disable textures
-			case 'E':
-				enableTexture = 0;
-				glutPostRedisplay();
-				break;  */
+
+		//Enable textures
+	case 'e':
+		enableTexture = 1;
+		glutPostRedisplay();
+		break;
+
+		//Disable textures
+	case 'E':
+		enableTexture = 0;
+		glutPostRedisplay();
+		break;
+
 		// rotate helicopter
 	case 'g':
 		if(turn == 1) {
 			girar = girar + 5.5;
 		}
-
 		glutPostRedisplay();
 		break;
 	case 'G':
@@ -626,6 +817,9 @@ void keyboard(unsigned char key, int x, int y) {
 			girar = girar - 5.5;
 		}
 		glutPostRedisplay();
+		break;
+	case 'x':
+		newExplosion();
 		break;
 
 	}
@@ -714,13 +908,13 @@ void init() {
 /* function which controls the screw-propeller, machine-gun and torpedo moves */
 void animation() {
 	if (turn) {
-		screwPropellerAngle = (screwPropellerAngle + 15) % 360;
+		screwPropellerAngle = (screwPropellerAngle + 5) % 360;
 		glutPostRedisplay();
 	}
 
 	if (shoot) {
-		machineGunBulletMovement = machineGunBulletMovement + 0.3;
-		if (machineGunBulletMovement > 15.0) {
+		machineGunBulletMovement = machineGunBulletMovement + 0.2;
+		if (machineGunBulletMovement > 50.0) {
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
 		}
@@ -729,7 +923,13 @@ void animation() {
 
 	if (leftTorpedo) {
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
-		if(leftTorpedoMovement > 15.0) {
+		if(verticalMovement > (OBJECT_Y-5) && verticalMovement < (OBJECT_Y)){
+			if(leftTorpedoMovement > OBJECT_X){
+				newExplosion();
+				leftTorpedo = 0;
+				leftTorpedoMovement = 0;
+				printf("true");
+			}}else if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
 		}
@@ -738,14 +938,14 @@ void animation() {
 
 	if (rightTorpedo) {
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
-		if(rightTorpedoMovement > 15.0) {
+		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;
-					}
+		}
 		glutPostRedisplay();
 	}
 	if(stop) {
-		verticalMovement = verticalMovement - 0.2;
+		verticalMovement = verticalMovement - 0.1;
 		if (verticalMovement < -0.5) {
 			verticalMovement = -0.52;
 			stop = 0;
@@ -753,6 +953,43 @@ void animation() {
 		}
 		glutPostRedisplay();
 	}
+	
+	int    i;
+	if (!wantPause) {
+		if (fuel > 0) {
+			for (i = 0; i < NUM_PARTIC; i++) {
+				particles[i].position[0] += particles[i].speed[0] * 0.2;
+				particles[i].position[1] += particles[i].speed[1] * 0.2;
+				particles[i].position[2] += particles[i].speed[2] * 0.2;
+
+				particles[i].color[0] -= 1.0 / 500.0;
+				if (particles[i].color[0] < 0.0) {
+					particles[i].color[0] = 0.0;
+				}
+
+				particles[i].color[1] -= 1.0 / 100.0;
+				if (particles[i].color[1] < 0.0) {
+					particles[i].color[1] = 0.0;
+				}
+
+				particles[i].color[2] -= 1.0 / 50.0;
+				if (particles[i].color[2] < 0.0) {
+					particles[i].color[2] = 0.0;
+				}
+			}
+			for (i = 0; i < NUM_PEDAC; i++) {
+				debris[i].position[0] += debris[i].speed[0] * 0.1;
+				debris[i].position[1] += debris[i].speed[1] * 0.1;
+				debris[i].position[2] += debris[i].speed[2] * 0.1;
+
+				debris[i].orientation[0] += debris[i].orientationSpeed[0] * 10;
+				debris[i].orientation[1] += debris[i].orientationSpeed[1] * 10;
+				debris[i].orientation[2] += debris[i].orientationSpeed[2] * 10;
+			}
+			--fuel;
+		}
+	}
+	glutPostRedisplay ();
 }
 
 int main(int argc, char * * argv) {
@@ -760,22 +997,16 @@ int main(int argc, char * * argv) {
 	glutInitWindowSize(WIDTH, HEIGHT);
 	glutInit( & argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-
 	if(!glutCreateWindow("Helicoptero")) {
 		fprintf(stderr, "Error opening a window.\n");
 		exit(-1);
 	}
-
 	init();
-
 	glutKeyboardFunc(keyboard);
-	glutMotionFunc(mouseAction);
-	//glutMouseWheelFunc(mouseWeel);
 	glutSpecialFunc(special);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(animation);
 	glutMainLoop();
-
 	return(0);
 }

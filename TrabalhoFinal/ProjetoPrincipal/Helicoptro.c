@@ -728,19 +728,20 @@ void animation() {
 	}
 
 	if (leftTorpedo) {
-		leftTorpedoMovement = leftTorpedoMovement + 0.3;
+		leftTorpedoMovement = leftTorpedoMovement + 0.2;
 		if(leftTorpedoMovement > 15.0) {
-			leftTorpedoMovement = 2.0;
-			leftTorpedo = 1;
+			leftTorpedoMovement = 0;
+			leftTorpedo = 0;
 		}
 		glutPostRedisplay();
 	}
 
 	if (rightTorpedo) {
-		rightTorpedoMovement = rightTorpedoMovement + 0.5;
+		rightTorpedoMovement = rightTorpedoMovement + 0.2;
 		if(rightTorpedoMovement > 15.0) {
-			rightTorpedo = 1;
-		}
+			rightTorpedoMovement = 0;
+			rightTorpedo = 0;
+					}
 		glutPostRedisplay();
 	}
 	if(stop) {

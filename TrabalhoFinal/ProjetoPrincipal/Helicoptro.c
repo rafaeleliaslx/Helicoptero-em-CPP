@@ -10,15 +10,14 @@
 #include <GL/glu.h>
 //#include <GL/freeglut.h>
 #include <time.h>
-#include "image.h"
 #include "image.c"
 
-#define PI 3.1415
+//#define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
 #define PLAN_COLOR 0.52,0.52,0.78,1.0
 #define HELICOPTER_COLOR 0.5,0.52,0.18,1.0
-#define PLAN_TEXTURE "mountains.rgb"
+#define PLAN_TEXTURE "cimento.rgb"
 #define HELICOPTER_TEXTURE "war.rgb"
 #define NUM_PARTIC    1000          /* NUMBER OF PARTTICLES  */
 #define NUM_PEDAC       1000            /* NUMBER OF PIECES     */

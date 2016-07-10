@@ -577,7 +577,7 @@ void display(void) {
 		glEnable (GL_DEPTH_TEST);
 
 		glPushMatrix();
-		glTranslatef ( OBJECT_X +(discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
+		glTranslatef ( OBJECT_X + (discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
 		glRotatef(45, 0, 45, 0);
 		glColor3f(0.0, 0.4, 0.0);
 		glScalef (3, 3, 3);
@@ -923,13 +923,13 @@ void animation() {
 
 	if (leftTorpedo) {
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
-		if(verticalMovement > (OBJECT_Y-5) && verticalMovement < (OBJECT_Y)){
-			if(leftTorpedoMovement > OBJECT_X){
+		if(verticalMovement > (OBJECT_Y - 5) && verticalMovement < (OBJECT_Y)) {
+			if(leftTorpedoMovement > OBJECT_X && leftTorpedoMovement < OBJECT_X + 5) {
 				newExplosion();
 				leftTorpedo = 0;
 				leftTorpedoMovement = 0;
-				printf("true");
-			}}else if(leftTorpedoMovement > 50.0) {
+			}
+		} else if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
 		}
@@ -938,7 +938,13 @@ void animation() {
 
 	if (rightTorpedo) {
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
-		if(rightTorpedoMovement > 50.0) {
+		if(verticalMovement > (OBJECT_Y - 5) && verticalMovement < (OBJECT_Y)) {
+			if(rightTorpedoMovement > OBJECT_X && rightTorpedoMovement < OBJECT_X + 5) {
+				newExplosion();
+				rightTorpedo = 0;
+				rightTorpedoMovement = 0;
+			}
+		} else if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;
 		}
@@ -953,7 +959,7 @@ void animation() {
 		}
 		glutPostRedisplay();
 	}
-	
+
 	int    i;
 	if (!wantPause) {
 		if (fuel > 0) {

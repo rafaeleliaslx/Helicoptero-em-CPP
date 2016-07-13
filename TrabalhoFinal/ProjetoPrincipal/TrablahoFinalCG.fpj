@@ -29,7 +29,5 @@
 	<AppType Value="GUI"/>
 	<Files>&#xD;
 		<File Name="Helicoptro.c"/>&#xD;
-		<File Name="image.h"/>&#xD;
-		<File Name="image.c"/>&#xD;
 	</Files>
 </Project>

@@ -12,7 +12,7 @@
 #include <time.h>
 #include "image.c"
 
-//#define PI 3.1415
+#define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
 #define PLAN_COLOR 0.52,0.52,0.78,1.0

@@ -47,8 +47,10 @@ int x2, y2, z2;
 int shoot = 0;
 int leftTorpedo = 0;
 int rightTorpedo = 0;
-float verticalMovement = -0.55;
-float horizontalMovement = 0;
+int rotationObject = 0;
+float movementY = -0.55;
+float movementX = 0;
+float movementZ = 0;
 float machineGunBulletMovement = 2.0;
 float leftTorpedoMovement = 0;
 float rightTorpedoMovement = 0;
@@ -92,6 +94,7 @@ typedef struct debrisData    debrisData;
 particleData     particles[NUM_PARTIC];
 debrisData       debris[NUM_PEDAC];
 int              fuel = 0;
+
 GLfloat  light0Amb[4] =  { 1.0, 0.6, 0.2, 1.0 };
 GLfloat  light0Dif[4] =  { 1.0, 0.6, 0.2, 1.0 };
 GLfloat  light0Spec[4] = { 0.0, 0.0, 0.0, 1.0 };
@@ -147,9 +150,9 @@ void composes_helicopter(void) {
 	glNewList(helicopter, GL_COMPILE);
 
 	glPushMatrix();
-
-	glTranslatef(0, verticalMovement, horizontalMovement);
-	glRotatef(-girar, 0.0 , 1.0, 0.0);
+	glTranslatef(movementX , movementY, movementZ);
+	glRotatef(girar, 0.0 , 1.0, 0.0);
+	glTranslatef(0.0, 0.0 , -2.2);
 
 	glScalef(1.0, 1.0, 1.0);
 	/* draws helicopter's beak */
@@ -577,8 +580,7 @@ void display(void) {
 
 		glPushMatrix();
 		glTranslatef ( OBJECT_X + (discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
-		glRotatef(45, 0, 45, 0);
-		glColor3f(0.0, 0.4, 0.0);
+		glRotatef(45, rotationObject, 45, 0);
 		glScalef (3, 3, 3);
 		glColor3f(0.647059, 0.264706, 0.094706);
 		glutSolidOctahedron(); //(2.2, 2, 100, 10);
@@ -674,28 +676,25 @@ void special(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_UP:
 		if(turn == 1) {
-			verticalMovement = verticalMovement + 0.5;
+			movementX = movementX - 0.5;
 		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
 		if(turn == 1) {
-			verticalMovement = verticalMovement - 0.5;
-			if(verticalMovement < -0.55) {
-				verticalMovement = -0.55;
-			}
+			movementX = movementX + 0.5;
 		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_LEFT:
 		if (turn == 1) {
-			horizontalMovement = horizontalMovement + 0.5;
+			movementZ = movementZ + 0.5;
 		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
 		if (turn == 1) {
-			horizontalMovement = horizontalMovement - 0.5;
+			movementZ = movementZ - 0.5;
 		}
 		glutPostRedisplay();
 		break;
@@ -740,6 +739,20 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'I': //turn off screw-propellers
 		stop = 1;
+		break;
+	
+	case 'f': //moves up
+		if(turn == 1) {
+			movementY = movementY + 0.5;
+		}
+		break;
+	case 'F': //moves down
+		if(turn == 1) {
+			movementY = movementY - 0.5;
+			if(movementY < -0.55) {
+				movementY = -0.55;
+			}
+		}
 		break;
 
 	case 'm': //shoot
@@ -913,7 +926,8 @@ void animation() {
 
 	if (shoot) {
 		machineGunBulletMovement = machineGunBulletMovement + 0.2;
-		if (machineGunBulletMovement > 50.0) {
+		if (machineGunBulletMovement > 50.0) {leftTorpedo = 0;
+				leftTorpedoMovement = 0;
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
 		}
@@ -922,13 +936,7 @@ void animation() {
 
 	if (leftTorpedo) {
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
-		if(verticalMovement > (OBJECT_Y - 5) && verticalMovement < (OBJECT_Y)) {
-			if(leftTorpedoMovement > OBJECT_X && leftTorpedoMovement < OBJECT_X + 5) {
-				newExplosion();
-				leftTorpedo = 0;
-				leftTorpedoMovement = 0;
-			}
-		} else if(leftTorpedoMovement > 50.0) {
+		if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
 		}
@@ -937,22 +945,16 @@ void animation() {
 
 	if (rightTorpedo) {
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
-		if(verticalMovement > (OBJECT_Y - 5) && verticalMovement < (OBJECT_Y)) {
-			if(rightTorpedoMovement > OBJECT_X && rightTorpedoMovement < OBJECT_X + 5) {
-				newExplosion();
-				rightTorpedo = 0;
-				rightTorpedoMovement = 0;
-			}
-		} else if(rightTorpedoMovement > 50.0) {
+		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;
 		}
 		glutPostRedisplay();
 	}
 	if(stop) {
-		verticalMovement = verticalMovement - 0.1;
-		if (verticalMovement < -0.5) {
-			verticalMovement = -0.52;
+		movementY = movementY - 0.1;
+		if (movementY < -0.5) {
+			movementY = -0.52;
 			stop = 0;
 			turn = 0;
 		}

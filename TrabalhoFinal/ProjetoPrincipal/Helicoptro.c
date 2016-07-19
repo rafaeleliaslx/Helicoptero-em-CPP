@@ -952,6 +952,7 @@ void animation() {
 				Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
 			}
 		}
+		// machineGunBulletMovement = machineGunBulletMovement + 0.1;
 		machineGunBulletMovement = machineGunBulletMovement + 0.2;
 		if (machineGunBulletMovement > 50.0) {
 			leftTorpedo = 0;
@@ -971,6 +972,7 @@ void animation() {
 			}
 		}
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
+		// leftTorpedoMovement = leftTorpedoMovement + 0.1;
 		if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
@@ -986,15 +988,18 @@ void animation() {
 				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
 			}
 		}
+		// rightTorpedoMovement = rightTorpedoMovement + 0.1;
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
 		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;
 		}
+
 		glutPostRedisplay();
 	}
 	if(stop) {
-		movementY = movementY - 0.1;
+		// movementY = movementY - 0.1;
+		movementY = movementY - 0.01;
 		if (movementY < -0.5) {
 			movementY = -0.52;
 			stop = 0;

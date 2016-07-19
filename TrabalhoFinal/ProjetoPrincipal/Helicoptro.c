@@ -55,8 +55,7 @@ float machineGunBulletMovement = 2.0;
 float leftTorpedoMovement = 0;
 float rightTorpedoMovement = 0;
 
-Mix_Music * musicBackgr; // helicoptero
-Mix_Chunk * soundTorp, * soundExplosion, * soundGunmach, * soundHelicopter;
+Mix_Chunk * soundTorp, * soundExplosion, * soundGunmach, * soundHelicopter, * soundBackgr;
 int chanBackgr = 1, chanTorpedo = 2, chanTorpedoR = 3, chanExplosion = 4, chanGunmach = 5, chanHelicopter = 6;
 int som = 0;
 
@@ -737,7 +736,6 @@ void mouseWeel (int button, int dir, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 27:  //exit
-		Mix_FreeMusic(musicBackgr);
 		Mix_FreeChunk(soundHelicopter);
 		Mix_FreeChunk(soundTorp);
 		Mix_FreeChunk(soundExplosion);
@@ -749,13 +747,12 @@ void keyboard(unsigned char key, int x, int y) {
 		turn = 1;
 		if(Mix_PlayChannel(chanHelicopter, soundHelicopter, -1) != -1) {
 			Mix_VolumeMusic(10);
-			Mix_VolumeChunk(soundHelicopter, 100);
+			Mix_VolumeChunk(soundHelicopter, 50);
 		}
 		glutPostRedisplay();
 		break;
 	case 'I': //turn off screw-propellers
 		stop = 1;
-		Mix_Pause(chanHelicopter);
 		break;
 
 	case 'f': //moves up
@@ -774,32 +771,15 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'm': //shoot
 	case 'M':
-		if(Mix_PlayChannel(chanGunmach, soundGunmach, -1) != -1) {
-			Mix_PlayChannel(chanGunmach, soundGunmach, 0);
-			Mix_VolumeMusic(30);
-			Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
-		}
-
 		shoot = 1;
 		glutPostRedisplay();
 		break;
 
 	case 't': //launch left torpedo
-		if(Mix_PlayChannel(chanTorpedo, soundTorp, -1) != -1) {
-			Mix_PlayChannel(chanTorpedo, soundTorp, 0);
-			Mix_VolumeMusic(30);
-			Mix_Volume(chanTorpedo, MIX_MAX_VOLUME);
-		}
-
 		leftTorpedo = 1;
 		glutPostRedisplay();
 		break;
 	case 'T': //launch right torpedo
-		if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
-			Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
-			Mix_VolumeMusic(30);
-			Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
-		}
 		rightTorpedo = 1;
 		glutPostRedisplay();
 		break;
@@ -873,7 +853,6 @@ void keyboard(unsigned char key, int x, int y) {
 
 		newExplosion();
 		break;
-
 	}
 }
 
@@ -959,12 +938,20 @@ void init() {
 
 /* function which controls the screw-propeller, machine-gun and torpedo moves */
 void animation() {
+
 	if (turn) {
 		screwPropellerAngle = (screwPropellerAngle + 5) % 360;
 		glutPostRedisplay();
 	}
 
 	if (shoot) {
+		if(machineGunBulletMovement == 2.0) {
+			if(Mix_PlayChannel(chanGunmach, soundGunmach, -1) != -1) {
+				Mix_PlayChannel(chanGunmach, soundGunmach, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
+			}
+		}
 		machineGunBulletMovement = machineGunBulletMovement + 0.2;
 		if (machineGunBulletMovement > 50.0) {
 			leftTorpedo = 0;
@@ -976,6 +963,13 @@ void animation() {
 	}
 
 	if (leftTorpedo) {
+		if(leftTorpedoMovement == 0) {
+			if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
+				Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
+			}
+		}
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
 		if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
@@ -985,6 +979,13 @@ void animation() {
 	}
 
 	if (rightTorpedo) {
+		if(rightTorpedoMovement == 0) {
+			if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
+				Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
+			}
+		}
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
 		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
@@ -998,6 +999,7 @@ void animation() {
 			movementY = -0.52;
 			stop = 0;
 			turn = 0;
+			Mix_Pause(chanHelicopter);
 		}
 		glutPostRedisplay();
 	}
@@ -1053,6 +1055,9 @@ int main(int argc, char * * argv) {
 	init();
 
 	//Initialize SDL_mixer
+
+
+
 	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 1024 ) < 0 ) {
 		printf("Mix_OpenAudio> %s\n", Mix_GetError());
 		exit(1);
@@ -1060,10 +1065,6 @@ int main(int argc, char * * argv) {
 	atexit(Mix_CloseAudio);
 
 	Mix_AllocateChannels(7);
-
-	musicBackgr = Mix_LoadMUS("Battlefield.mp3");
-	Mix_VolumeMusic(MIX_MAX_VOLUME);
-	Mix_PlayMusic( musicBackgr, -1 );
 
 	soundHelicopter = Mix_LoadWAV("Helicoptero.wav");
 	soundTorp = Mix_LoadWAV("Missil.wav");

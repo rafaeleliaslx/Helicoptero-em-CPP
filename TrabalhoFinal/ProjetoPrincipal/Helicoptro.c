@@ -952,7 +952,7 @@ void animation() {
 				Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
 			}
 		}
-		machineGunBulletMovement = machineGunBulletMovement + 0.2;
+		machineGunBulletMovement = machineGunBulletMovement + 0.2; //Bullet movement
 		if (machineGunBulletMovement > 50.0) {
 			leftTorpedo = 0;
 			leftTorpedoMovement = 0;
@@ -970,7 +970,7 @@ void animation() {
 				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
 			}
 		}
-		leftTorpedoMovement = leftTorpedoMovement + 0.2;
+		leftTorpedoMovement = leftTorpedoMovement + 0.2; //Torpedo movement
 		if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
@@ -986,7 +986,7 @@ void animation() {
 				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
 			}
 		}
-		rightTorpedoMovement = rightTorpedoMovement + 0.2;
+		rightTorpedoMovement = rightTorpedoMovement + 0.2; //Torpedo movement
 		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;

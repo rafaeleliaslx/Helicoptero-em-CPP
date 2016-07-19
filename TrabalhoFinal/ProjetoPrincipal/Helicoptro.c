@@ -11,7 +11,7 @@
 //#include <GL/freeglut.h>
 #include <time.h>
 #include "image.c"
-
+#include <SDL/SDL_mixer.h>
 #define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
@@ -54,6 +54,12 @@ float movementZ = 0;
 float machineGunBulletMovement = 2.0;
 float leftTorpedoMovement = 0;
 float rightTorpedoMovement = 0;
+
+Mix_Music * musicBackgr; // helicoptero
+Mix_Chunk * soundTorp, * soundExplosion, * soundGunmach, * soundHelicopter;
+int chanBackgr = 1, chanTorpedo = 2, chanTorpedoR = 3, chanExplosion = 4, chanGunmach = 5, chanHelicopter = 6;
+int som = 0;
+
 
 GLfloat ctp[4][2] = {
 	{ -PLAN_TEXTURE_COORD, -PLAN_TEXTURE_COORD},
@@ -518,6 +524,7 @@ void newSpeed (float dest[3]) {
 
 void newExplosion (void) {
 	int    i;
+
 	for (i = 0; i < NUM_PARTIC; i++) {
 		particles[i].position[0] = OBJECT_X;
 		particles[i].position[1] = OBJECT_Y;
@@ -730,17 +737,27 @@ void mouseWeel (int button, int dir, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 27:  //exit
+		Mix_FreeMusic(musicBackgr);
+		Mix_FreeChunk(soundHelicopter);
+		Mix_FreeChunk(soundTorp);
+		Mix_FreeChunk(soundExplosion);
+		Mix_FreeChunk(soundGunmach);
 		exit(0);
 		break;
 
 	case 'i': //turn on screw-propellers
 		turn = 1;
+		if(Mix_PlayChannel(chanHelicopter, soundHelicopter, -1) != -1) {
+			Mix_VolumeMusic(10);
+			Mix_VolumeChunk(soundHelicopter, 100);
+		}
 		glutPostRedisplay();
 		break;
 	case 'I': //turn off screw-propellers
 		stop = 1;
+		Mix_Pause(chanHelicopter);
 		break;
-	
+
 	case 'f': //moves up
 		if(turn == 1) {
 			movementY = movementY + 0.5;
@@ -757,15 +774,32 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'm': //shoot
 	case 'M':
+		if(Mix_PlayChannel(chanGunmach, soundGunmach, -1) != -1) {
+			Mix_PlayChannel(chanGunmach, soundGunmach, 0);
+			Mix_VolumeMusic(30);
+			Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
+		}
+
 		shoot = 1;
 		glutPostRedisplay();
 		break;
 
 	case 't': //launch left torpedo
+		if(Mix_PlayChannel(chanTorpedo, soundTorp, -1) != -1) {
+			Mix_PlayChannel(chanTorpedo, soundTorp, 0);
+			Mix_VolumeMusic(30);
+			Mix_Volume(chanTorpedo, MIX_MAX_VOLUME);
+		}
+
 		leftTorpedo = 1;
 		glutPostRedisplay();
 		break;
 	case 'T': //launch right torpedo
+		if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
+			Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
+			Mix_VolumeMusic(30);
+			Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
+		}
 		rightTorpedo = 1;
 		glutPostRedisplay();
 		break;
@@ -831,6 +865,12 @@ void keyboard(unsigned char key, int x, int y) {
 		glutPostRedisplay();
 		break;
 	case 'x':
+		if(Mix_PlayChannel(chanExplosion, soundExplosion, 0) != -1) {
+			Mix_VolumeMusic(10);
+			Mix_Volume(chanHelicopter, 10);
+			Mix_Volume(chanExplosion, MIX_MAX_VOLUME);
+		}
+
 		newExplosion();
 		break;
 
@@ -926,8 +966,9 @@ void animation() {
 
 	if (shoot) {
 		machineGunBulletMovement = machineGunBulletMovement + 0.2;
-		if (machineGunBulletMovement > 50.0) {leftTorpedo = 0;
-				leftTorpedoMovement = 0;
+		if (machineGunBulletMovement > 50.0) {
+			leftTorpedo = 0;
+			leftTorpedoMovement = 0;
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
 		}
@@ -963,6 +1004,7 @@ void animation() {
 
 	int    i;
 	if (!wantPause) {
+
 		if (fuel > 0) {
 			for (i = 0; i < NUM_PARTIC; i++) {
 				particles[i].position[0] += particles[i].speed[0] * 0.2;
@@ -1009,6 +1051,26 @@ int main(int argc, char * * argv) {
 		exit(-1);
 	}
 	init();
+
+	//Initialize SDL_mixer
+	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 1024 ) < 0 ) {
+		printf("Mix_OpenAudio> %s\n", Mix_GetError());
+		exit(1);
+	}
+	atexit(Mix_CloseAudio);
+
+	Mix_AllocateChannels(7);
+
+	musicBackgr = Mix_LoadMUS("Battlefield.mp3");
+	Mix_VolumeMusic(MIX_MAX_VOLUME);
+	Mix_PlayMusic( musicBackgr, -1 );
+
+	soundHelicopter = Mix_LoadWAV("Helicoptero.wav");
+	soundTorp = Mix_LoadWAV("Missil.wav");
+	soundExplosion = Mix_LoadWAV("Explosao.wav");
+	soundGunmach = Mix_LoadWAV("Tiro.wav");
+
+
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 	glutDisplayFunc(display);

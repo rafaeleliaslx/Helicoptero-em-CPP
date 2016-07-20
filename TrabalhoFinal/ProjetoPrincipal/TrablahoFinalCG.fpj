@@ -1,20 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Project>
-	<VersionInfo>&#xD;
-		<VersionNumbers Major="1" Minor="0" Release="0" Build="0"/>&#xD;
-		<LanguageID Value="1046"/>&#xD;
-		<CharsetID Value="1252"/>&#xD;
-		<CompanyName Value="Hewlett-Packard"/>&#xD;
-		<FileVersion Value="1.0.0.0"/>&#xD;
-		<FileDescription Value="Glut demo"/>&#xD;
-		<InternalName Value=""/>&#xD;
-		<LegalCopyright Value=""/>&#xD;
-		<LegalTrademarks Value=""/>&#xD;
-		<OriginalFilename Value=""/>&#xD;
-		<ProductName Value=""/>&#xD;
-		<ProductVersion Value="1.0.0.0"/>&#xD;
-		<AutoIncrementBuild Value="No"/>&#xD;
+	<VersionInfo>
+		<VersionNumbers Major="1" Minor="0" Release="0" Build="0"/>
+		<LanguageID Value="1046"/>
+		<CharsetID Value="1252"/>
+		<CompanyName Value="Hewlett-Packard"/>
+		<FileVersion Value="1.0.0.0"/>
+		<FileDescription Value="Glut demo"/>
+		<InternalName Value=""/>
+		<LegalCopyright Value=""/>
+		<LegalTrademarks Value=""/>
+		<OriginalFilename Value=""/>
+		<ProductName Value=""/>
+		<ProductVersion Value="1.0.0.0"/>
+		<AutoIncrementBuild Value="No"/>
 	</VersionInfo>
-	<Libs Value="-mwindows -static -lglut32 -lglu32 -lopengl32 -lwinmm -lgdi32 -std=c99"/>
+	<Libs Value="-mwindows -static -lglut32 -lglu32 -lopengl32 -lwinmm -lgdi32 -std=c99 -lsdlmain -lsdl -lsdl_mixer -Wal -lmingw32"/>
 	<Flags Value="-DGLUT_STATIC"/>
 	<Target Value="Helicoptero.exe"/>
 	<CommandLine Value=""/>
@@ -27,7 +28,7 @@
 	<RequiresAdmin Value="No"/>
 	<CompilerType Value="C"/>
 	<AppType Value="GUI"/>
-	<Files>&#xD;
-		<File Name="Helicoptro.c"/>&#xD;
+	<Files>
+		<File Name="Helicoptro.c"/>
 	</Files>
 </Project>

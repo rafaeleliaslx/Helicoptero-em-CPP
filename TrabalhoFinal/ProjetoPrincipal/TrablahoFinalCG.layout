@@ -1,7 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Layout>
+<<<<<<< HEAD
 	<Files>&#xD;
 		<File Name="Helicoptro.c" Top="Yes" Tabpos="1" TopLine="399">&#xD;
 			<Cursor Line="722" Column="4"/>&#xD;
 		</File>&#xD;
+=======
+	<Files>
+		<File Name="Helicoptro.c" Top="Yes" Tabpos="1" TopLine="1038">
+			<Cursor Line="1065" Column="2"/>
+		</File>
+>>>>>>> origin/master
 	</Files>
 </Layout>

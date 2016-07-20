@@ -11,7 +11,7 @@
 //#include <GL/freeglut.h>
 #include <time.h>
 #include "image.c"
-
+#include <SDL/SDL_mixer.h>
 #define PI 3.1415
 #define PLAN_TEXTURE_COORD 1.0
 #define PLAN_TEXTURE_HELICOPTER 1.0
@@ -21,9 +21,9 @@
 #define HELICOPTER_TEXTURE "war.rgb"
 #define NUM_PARTIC    1000          /* NUMBER OF PARTTICLES  */
 #define NUM_PEDAC       1000            /* NUMBER OF PIECES     */
-#define OBJECT_X 10
+#define OBJECT_X 0
 #define OBJECT_Y 5
-#define OBJECT_Z 10
+#define OBJECT_Z 15
 
 
 GLint WIDTH = 1000;
@@ -43,6 +43,7 @@ GLfloat girar = 0.0;
 int screwPropellerAngle = 0;
 int stop = 0;
 int turn = 0;
+int activateExplosion = 1;
 int x2, y2, z2;
 int shoot = 0;
 int leftTorpedo = 0;
@@ -54,6 +55,11 @@ float movementZ = 0;
 float machineGunBulletMovement = 2.0;
 float leftTorpedoMovement = 0;
 float rightTorpedoMovement = 0;
+
+Mix_Chunk * soundTorp, * soundExplosion, * soundGunmach, * soundHelicopter, * soundBackgr;
+int chanBackgr = 1, chanTorpedo = 2, chanTorpedoR = 3, chanExplosion = 4, chanGunmach = 5, chanHelicopter = 6;
+int som = 0;
+
 
 GLfloat ctp[4][2] = {
 	{ -PLAN_TEXTURE_COORD, -PLAN_TEXTURE_COORD},
@@ -518,6 +524,13 @@ void newSpeed (float dest[3]) {
 
 void newExplosion (void) {
 	int    i;
+
+	if(Mix_PlayChannel(chanExplosion, soundExplosion, 0) != -1) {
+		Mix_VolumeMusic(10);
+		Mix_Volume(chanHelicopter, 10);
+		Mix_Volume(chanExplosion, MIX_MAX_VOLUME);
+	}
+
 	for (i = 0; i < NUM_PARTIC; i++) {
 		particles[i].position[0] = OBJECT_X;
 		particles[i].position[1] = OBJECT_Y;
@@ -572,72 +585,72 @@ void display(void) {
 	obs[0] = radiusxz * cos(2 * PI * axisxz / 360);
 	obs[2] = radiusxz * sin(2 * PI * axisxz / 360);
 	gluLookAt(obs[0], obs[1], obs[2], look[0], look[1], look[2], 0.0, 1.0, 0.0);
+	if (activateExplosion) {
+		if(fuel == 0) {
+			glEnable (GL_LIGHTING);
+			glDisable (GL_LIGHT0);
+			glEnable (GL_DEPTH_TEST);
 
-	if(fuel == 0) {
-		glEnable (GL_LIGHTING);
-		glDisable (GL_LIGHT0);
-		glEnable (GL_DEPTH_TEST);
-
-		glPushMatrix();
-		glTranslatef ( OBJECT_X + (discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
-		glRotatef(45, rotationObject, 45, 0);
-		glScalef (3, 3, 3);
-		glColor3f(0.647059, 0.264706, 0.094706);
-		glutSolidOctahedron(); //(2.2, 2, 100, 10);
-		glPopMatrix();
-	}
-
-	if (fuel > 0) {
-		glPushMatrix ();
-
-		glDisable (GL_LIGHTING);
-		glDisable (GL_DEPTH_TEST);
-
-		glBegin (GL_POINTS);
-		int i = 0;
-		while (i < NUM_PARTIC) {
-			glColor3fv (particles[i].color);
-			glVertex3fv (particles[i].position);
-			i++;
+			glPushMatrix();
+			glTranslatef ( OBJECT_X + (discharge[0] / 2), OBJECT_Y, OBJECT_Z + (discharge[0] / 2.8));
+			glRotatef(45, rotationObject, 45, 0);
+			glScalef (3, 3, 3);
+			glColor3f(0.647059, 0.264706, 0.094706);
+			glutSolidOctahedron(); //(2.2, 2, 100, 10);
+			glPopMatrix();
 		}
 
-		glEnd ();
-
-		glPopMatrix ();
-
-		glEnable (GL_LIGHTING);
-		glEnable (GL_LIGHT0);
-		glEnable (GL_DEPTH_TEST);
-
-		glNormal3f (0.0, 0.0, 1.0);
-
-		for (i = 0; i < NUM_PEDAC; i++) {
-			glColor3fv (debris[i].color);
-
+		if (fuel > 0) {
 			glPushMatrix ();
 
-			glTranslatef (debris[i].position[0],
-						  debris[i].position[1],
-						  debris[i].position[2]);
+			glDisable (GL_LIGHTING);
+			glDisable (GL_DEPTH_TEST);
 
-			glRotatef (debris[i].orientation[0], 1.0, 0.0, 0.0);
-			glRotatef (debris[i].orientation[1], 0.0, 1.0, 0.0);
-			glRotatef (debris[i].orientation[2], 0.0, 0.0, 1.0);
+			glBegin (GL_POINTS);
+			int i = 0;
+			while (i < NUM_PARTIC) {
+				glColor3fv (particles[i].color);
+				glVertex3fv (particles[i].position);
+				i++;
+			}
 
-			glScalef (debris[i].scale[0],
-					  debris[i].scale[1],
-					  debris[i].scale[2]);
-
-			glBegin (GL_TRIANGLES);
-			glVertex3f (0.0, 0.5, 0.0);
-			glVertex3f (-0.25, 0.0, 0.0);
-			glVertex3f (0.25, 0.0, 0.0);
 			glEnd ();
 
 			glPopMatrix ();
+
+			glEnable (GL_LIGHTING);
+			glEnable (GL_LIGHT0);
+			glEnable (GL_DEPTH_TEST);
+
+			glNormal3f (0.0, 0.0, 1.0);
+
+			for (i = 0; i < NUM_PEDAC; i++) {
+				glColor3fv (debris[i].color);
+
+				glPushMatrix ();
+
+				glTranslatef (debris[i].position[0],
+							  debris[i].position[1],
+							  debris[i].position[2]);
+
+				glRotatef (debris[i].orientation[0], 1.0, 0.0, 0.0);
+				glRotatef (debris[i].orientation[1], 0.0, 1.0, 0.0);
+				glRotatef (debris[i].orientation[2], 0.0, 0.0, 1.0);
+
+				glScalef (debris[i].scale[0],
+						  debris[i].scale[1],
+						  debris[i].scale[2]);
+
+				glBegin (GL_TRIANGLES);
+				glVertex3f (0.0, 0.5, 0.0);
+				glVertex3f (-0.25, 0.0, 0.0);
+				glVertex3f (0.25, 0.0, 0.0);
+				glEnd ();
+
+				glPopMatrix ();
+			}
 		}
 	}
-
 
 
 	/* enable/disable use of textures */
@@ -730,17 +743,25 @@ void mouseWeel (int button, int dir, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 27:  //exit
+		Mix_FreeChunk(soundHelicopter);
+		Mix_FreeChunk(soundTorp);
+		Mix_FreeChunk(soundExplosion);
+		Mix_FreeChunk(soundGunmach);
 		exit(0);
 		break;
 
 	case 'i': //turn on screw-propellers
 		turn = 1;
+		if(Mix_PlayChannel(chanHelicopter, soundHelicopter, -1) != -1) {
+			Mix_VolumeMusic(10);
+			Mix_VolumeChunk(soundHelicopter, 50);
+		}
 		glutPostRedisplay();
 		break;
 	case 'I': //turn off screw-propellers
 		stop = 1;
 		break;
-	
+
 	case 'f': //moves up
 		if(turn == 1) {
 			movementY = movementY + 0.5;
@@ -831,9 +852,9 @@ void keyboard(unsigned char key, int x, int y) {
 		glutPostRedisplay();
 		break;
 	case 'x':
-		newExplosion();
+		activateExplosion = !activateExplosion;
+		//newExplosion();
 		break;
-
 	}
 }
 
@@ -919,15 +940,25 @@ void init() {
 
 /* function which controls the screw-propeller, machine-gun and torpedo moves */
 void animation() {
+
 	if (turn) {
 		screwPropellerAngle = (screwPropellerAngle + 5) % 360;
 		glutPostRedisplay();
 	}
 
 	if (shoot) {
+		if(machineGunBulletMovement == 2.0) {
+			if(Mix_PlayChannel(chanGunmach, soundGunmach, -1) != -1) {
+				Mix_PlayChannel(chanGunmach, soundGunmach, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanGunmach, MIX_MAX_VOLUME);
+			}
+		}
+		// machineGunBulletMovement = machineGunBulletMovement + 0.1;
 		machineGunBulletMovement = machineGunBulletMovement + 0.2;
-		if (machineGunBulletMovement > 50.0) {leftTorpedo = 0;
-				leftTorpedoMovement = 0;
+		if (machineGunBulletMovement > 50.0) {
+			leftTorpedo = 0;
+			leftTorpedoMovement = 0;
 			shoot = 0;
 			machineGunBulletMovement = 2.0;
 		}
@@ -935,7 +966,26 @@ void animation() {
 	}
 
 	if (leftTorpedo) {
+		if(leftTorpedoMovement == 0) {
+			if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
+				Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
+			}
+		}
 		leftTorpedoMovement = leftTorpedoMovement + 0.2;
+		// leftTorpedoMovement = leftTorpedoMovement + 0.1;
+		if(activateExplosion) {
+			if(movementX > OBJECT_X - 1 && movementX < OBJECT_X + 1 ) {
+				if(movementY > OBJECT_Y - 5 && movementY < OBJECT_Y) {
+					if(leftTorpedoMovement > OBJECT_Z + 3) {
+						newExplosion();
+						leftTorpedoMovement = 0;
+						leftTorpedo = 0;
+					}
+				}
+			}
+		}
 		if(leftTorpedoMovement > 50.0) {
 			leftTorpedoMovement = 0;
 			leftTorpedo = 0;
@@ -944,25 +994,48 @@ void animation() {
 	}
 
 	if (rightTorpedo) {
+		if(rightTorpedoMovement == 0) {
+			if(Mix_PlayChannel(chanTorpedoR, soundTorp, -1) != -1) {
+				Mix_PlayChannel(chanTorpedoR, soundTorp, 0);
+				Mix_VolumeMusic(30);
+				Mix_Volume(chanTorpedoR, MIX_MAX_VOLUME);
+			}
+		}
+		// rightTorpedoMovement = rightTorpedoMovement + 0.1;
 		rightTorpedoMovement = rightTorpedoMovement + 0.2;
+		if(activateExplosion) {
+			if(movementX > OBJECT_X - 1 && movementX < OBJECT_X + 1 ) {
+				if(movementY > OBJECT_Y - 5 && movementY < OBJECT_Y) {
+					if(rightTorpedoMovement > OBJECT_Z + 3) {
+						newExplosion();
+						rightTorpedoMovement = 0;
+						rightTorpedo = 0;
+					}
+				}
+			}
+		}
 		if(rightTorpedoMovement > 50.0) {
 			rightTorpedoMovement = 0;
 			rightTorpedo = 0;
 		}
+
 		glutPostRedisplay();
 	}
 	if(stop) {
-		movementY = movementY - 0.1;
+		// movementY = movementY - 0.1;
+		movementY = movementY - 0.01;
 		if (movementY < -0.5) {
 			movementY = -0.52;
 			stop = 0;
 			turn = 0;
+			Mix_Pause(chanHelicopter);
 		}
 		glutPostRedisplay();
 	}
 
 	int    i;
 	if (!wantPause) {
+
 		if (fuel > 0) {
 			for (i = 0; i < NUM_PARTIC; i++) {
 				particles[i].position[0] += particles[i].speed[0] * 0.2;
@@ -994,6 +1067,7 @@ void animation() {
 				debris[i].orientation[2] += debris[i].orientationSpeed[2] * 10;
 			}
 			--fuel;
+			if(fuel == 0) activateExplosion = 0;
 		}
 	}
 	glutPostRedisplay ();
@@ -1009,6 +1083,25 @@ int main(int argc, char * * argv) {
 		exit(-1);
 	}
 	init();
+
+	//Initialize SDL_mixer
+
+
+
+	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 1024 ) < 0 ) {
+		printf("Mix_OpenAudio> %s\n", Mix_GetError());
+		exit(1);
+	}
+	atexit(Mix_CloseAudio);
+
+	Mix_AllocateChannels(7);
+
+	soundHelicopter = Mix_LoadWAV("Helicoptero.wav");
+	soundTorp = Mix_LoadWAV("Missil.wav");
+	soundExplosion = Mix_LoadWAV("Explosao.wav");
+	soundGunmach = Mix_LoadWAV("Tiro.wav");
+
+
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 	glutDisplayFunc(display);

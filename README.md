@@ -1,1 +1,1 @@
-trabalho final de CG.
+Trabalho final de Computação Gráfica.
